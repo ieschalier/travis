@@ -15,7 +15,11 @@ before_install:
     - export ANDROID_HOME=$PWD/android-sdk-linux 
     - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools 
 
+<<<<<<< HEAD
     - android update sdk --filter platform-tools,android-16,extra-android-support,66,$ANDROID_SDKS --no-ui --all --force > /dev/null
+=======
+    - android update sdk --filter platform-tools,android-16,extra-android-support,66,$ANDROID_SDKS --no-ui --force > /dev/null
+>>>>>>> 7b6c923b15e6d057425d1ecb3a472f530b141b90
 
     - echo  no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
 
