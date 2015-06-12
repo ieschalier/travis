@@ -44,7 +44,7 @@ before_install:
     - echo no | openssl s_client -connect services.gradle.org:443 -state
 script:
     # By default Travis-ci executes './gradlew build connectedCheck' if no 'script:' section found.
-    - ./gradlew build
+    - ./gradlew build connectedCheck 
 after_failure:
   # - echo 'FAILURE'
   # Check apt configuration: http://docs.travis-ci.com/user/ci-environment/#apt-configuration
