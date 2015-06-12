@@ -33,4 +33,3 @@ before_script:
     - adb shell input keyevent 82 
 before_install:
     - openssl s_client -connect services.gradle.org:443 -state
-
