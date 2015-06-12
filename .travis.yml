@@ -1,57 +1,84 @@
 language: android
 sudo: required
-install:
-  # Check install section: http://docs.travis-ci.com/user/build-configuration/#install
-  # If you'd like to skip the install stage entirely, set it to true and nothing will be run.
-    - true
-android:
-  components:
-    # Uncomment the lines below if you want to
-    # use the latest revision of Android SDK Tools
-    # - platform-tools
-    # - tools
+jdk: oraclejdk7
+env:
+  matrix:
+    # android-16 is always included
+    - ANDROID_SDKS=sysimg-16   ANDROID_TARGET=android-16   ANDROID_ABI=armeabi-v7a 
+    - ANDROID_SDKS=android-17,sysimg-17 ANDROID_TARGET=android-17 ANDROID_ABI=armeabi-v7a 
+before_install:
+    # Isntall base Android SDK
+    - sudo apt-get update -qq
+    - if [ `uname -m` = x86_64 ]; then  sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch > /dev/null;  fi
+    - wget http://dl.google.com/android/android-sdk_r21.1-linux.tgz
+    - tar xzf android-sdk_r21.1-linux.tgz
+    - export ANDROID_HOME=$PWD/android-sdk-linux 
+    - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools 
 
-    # The BuildTools version used by your project
-    - build-tools-22.0.1
+    - android update sdk --filter platform-tools,android-16,extra-android-support,66,$ANDROID_SDKS --no-ui --force > /dev/null
 
-    # The SDK version used to compile your project
-    - android-22
+    - echo  no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
 
-    # Additional components
-    - extra-google-google_play_services
-    - extra-google-m2repository
-    - extra-android-m2repository
-    - addon-google_apis-google-19
-
-    # Specify at least one system image,
-    # if you need to run emulator(s) during your tests
-    - sys-img-armeabi-v7a-android-19
-    - sys-img-x86-android-17
-  licenses:
-    - 'android-sdk-preview-license-.+'
-    - 'android-sdk-license-.+'
-    - 'google-gdk-license-.+'
-before_script:
-    - adb -e logcat *:W | tee logcat.log > /dev/null 2>&1 &
-    - sudo apt-get install freeglut3
-    - echo no | android create avd --force -n test -t android-15 --abi armeabi-v7a
-    - emulator -avd test -no-skin -no-audio -no-window &
+     - emulator -avd test -no-skin -no-audio -no-window &
+before_script: 
+    - chmod +x wait_for_emulator 
     - curl http://is.gd/android_wait_for_emulator > android-wait-for-emulator
     - chmod u+x android-wait-for-emulator
-    - android-wait-for-emulator
-    - adb shell input keyevent 82 &
-before_install:
-    - echo no | openssl s_client -connect services.gradle.org:443 -state
-script:
-    # By default Travis-ci executes './gradlew build connectedCheck' if no 'script:' section found.
-    - ./gradlew build connectedCheck 
-after_failure:
-  # - echo 'FAILURE'
-  # Check apt configuration: http://docs.travis-ci.com/user/ci-environment/#apt-configuration
-  # Comment out the lines below to show log about tests with app name customized on exports section.
-  # - sudo apt-get install -qq lynx
-  # - export MOD_NAME=yourappmodulename
-  # - export LOG_DIR=${TRAVIS_BUILD_DIR}/${MOD_NAME}/build/outputs/reports/androidTests/connected/
-  # - lynx --dump ${LOG_DIR}com.android.builder.testing.ConnectedDevice.html > myConnectedDevice.log
-  # - lynx --dump ${LOG_DIR}com.android.builder.testing.html > myTesting.log
-  # - for file in *.log; do echo "$file"; echo "====================="; cat "$file"; done || true
+    - ./wait_for_emulator 
+
+script: mvn install -Pintegration-tests -Dandroid.device=test 
+#install:
+#  # Check install section: http://docs.travis-ci.com/user/build-configuration/#install
+#  # If you'd like to skip the install stage entirely, set it to true and nothing will be run.
+#    - true
+#android:
+#  components:
+#    # Uncomment the lines below if you want to
+#    # use the latest revision of Android SDK Tools
+#    # - platform-tools
+#    # - tools
+#
+#    # The BuildTools version used by your project
+#    - build-tools-22.0.1
+#
+#    # The SDK version used to compile your project
+#    - android-22
+#
+#    # Additional components
+#    - extra-google-google_play_services
+#    - extra-google-m2repository
+#    - extra-android-m2repository
+#    - addon-google_apis-google-19
+#
+#    # Specify at least one system image,
+#    # if you need to run emulator(s) during your tests
+#    - sys-img-armeabi-v7a-android-19
+#    - sys-img-x86-android-17
+#  licenses:
+#    - 'android-sdk-preview-license-.+'
+#    - 'android-sdk-license-.+'
+#    - 'google-gdk-license-.+'
+#before_script:
+#    - adb -e logcat *:W | tee logcat.log > /dev/null 2>&1 &
+#    # - sudo apt-get install freeglut3
+#    - echo no | android create avd --force -n test -t android-15 --abi armeabi-v7a
+#    - emulator -avd test -no-skin -no-audio -no-window &
+#    - curl http://is.gd/android_wait_for_emulator > android-wait-for-emulator
+#    - chmod u+x android-wait-for-emulator
+#    - android-wait-for-emulator
+#    - adb shell input keyevent 82 &
+#before_install:
+#    - echo no | openssl s_client -connect services.gradle.org:443 -state
+#script:
+#    # By default Travis-ci executes './gradlew build connectedCheck' if no 'script:' section found.
+#    - ./gradlew build connectedCheck 
+#after_failure:
+#  # - echo 'FAILURE'
+#  # Check apt configuration: http://docs.travis-ci.com/user/ci-environment/#apt-configuration
+#  # Comment out the lines below to show log about tests with app name customized on exports section.
+#  # - sudo apt-get install -qq lynx
+#  # - export MOD_NAME=yourappmodulename
+#  # - export LOG_DIR=${TRAVIS_BUILD_DIR}/${MOD_NAME}/build/outputs/reports/androidTests/connected/
+#  # - lynx --dump ${LOG_DIR}com.android.builder.testing.ConnectedDevice.html > myConnectedDevice.log
+#  # - lynx --dump ${LOG_DIR}com.android.builder.testing.html > myTesting.log
+#  # - for file in *.log; do echo "$file"; echo "====================="; cat "$file"; done || true
