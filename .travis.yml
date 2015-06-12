@@ -61,7 +61,7 @@ android:
 before_script:
     - adb -e logcat *:W | tee logcat.log > /dev/null 2>&1 &
     # - sudo apt-get install freeglut3
-    - echo no | android create avd --force -n test -t android-15 --abi armeabi-v7a
+    - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
     - emulator -avd test -no-skin -no-audio -no-window &
     - curl http://is.gd/android_wait_for_emulator > android-wait-for-emulator
     - chmod u+x android-wait-for-emulator
