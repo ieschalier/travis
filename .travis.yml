@@ -32,4 +32,4 @@ before_script:
     - android-wait-for-emulator
     - adb shell input keyevent 82 
 before_install:
-    - openssl s_client -connect services.gradle.org:443 -state
+    - echo -n | openssl s_client -connect services.gradle.org:443 -state
