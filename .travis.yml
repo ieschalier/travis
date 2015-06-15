@@ -27,6 +27,8 @@
 #    - ./wait_for_emulator 
 #
 #script: mvn install -Pintegration-tests -Dandroid.device=test 
+language: android
+sudo: required
 install:
   # Check install section: http://docs.travis-ci.com/user/build-configuration/#install
   # If you'd like to skip the install stage entirely, set it to true and nothing will be run.
@@ -61,7 +63,7 @@ android:
 before_script:
     - adb -e logcat *:W | tee logcat.log > /dev/null 2>&1 &
     # - sudo apt-get install freeglut3
-    - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+    - echo no | android create avd --force -n test -t android-15 --abi armeabi-v7a
     - emulator -avd test -no-skin -no-audio -no-window &
     - curl http://is.gd/android_wait_for_emulator > android-wait-for-emulator
     - chmod u+x android-wait-for-emulator
@@ -71,8 +73,7 @@ before_install:
     - echo no | openssl s_client -connect services.gradle.org:443 -state
 script:
     # By default Travis-ci executes './gradlew build connectedCheck' if no 'script:' section found.
-    #- ./gradlew build connectedCheck 
-    - mvn install -Pintegration-tests -Dandroid.device=test 
+    - ./gradlew build connectedCheck 
 after_failure:
   # - echo 'FAILURE'
   # Check apt configuration: http://docs.travis-ci.com/user/ci-environment/#apt-configuration
